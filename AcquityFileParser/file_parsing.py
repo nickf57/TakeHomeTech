@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 from typing import List
 from dataclasses import dataclass, field
@@ -24,6 +26,7 @@ class FileParser:
     path: str
         path use to find file
     filename: str
+        parsed filename from provided path
     injection_metadata:
         object to store injection associated metadata
     chromatogram_metadata:
@@ -36,6 +39,8 @@ class FileParser:
         stores raw chromatogram data as list of lists
     processed_chromatogram: ChromatogramProcessing
         stores processed chromatogram and identified peaks
+    chromatography_data_df: pd.DataFrame
+        chromatogram data organized as pandas dataframe
     ```
 
     """
@@ -59,9 +64,12 @@ class FileParser:
                 f"File extension must be one of the following: {valid_file_extensions}"
             )
 
-        self.filename = self.path.split(".")[0]
+        self.filename = os.path.basename(self.path)
 
     def parse_file(self):
+        """Parses provided file line by line. Metadata is identified via predefined key mappings stored in util.py.
+         Prior to storage, metadata values are cast to appropriate types. Chromatogram
+        data is stored as a list of lists for eventual conversion to a dataframe."""
 
         with open(self.path, "r", encoding="utf-8") as file:
             for line in file:
@@ -79,7 +87,7 @@ class FileParser:
                     key_value_pair = stripped_line.split("\t")
 
                     if len(key_value_pair) == 2:
-
+                        # metadata_map values are tuples containing attribute names and type casting functions
                         if injection_metadata_map.get(key_value_pair[0]):
                             setattr(
                                 self.injection_metadata,
@@ -131,7 +139,7 @@ class FileParser:
         return self
 
     def process_chromatogram(self):
-        """Created ChromatogramProcessing object and triggers chromatogram preprocessing and peak integration."""
+        """Creates ChromatogramProcessing object and triggers chromatogram preprocessing and peak integration."""
 
         self.processed_chromatogram = ChromatogramProcessor(
             data=self.chromatography_data_df,
