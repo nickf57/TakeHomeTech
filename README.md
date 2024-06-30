@@ -111,7 +111,7 @@ If you would like to modify peak integration specific parameters, you need to fo
 
 Beyond basic numerical descriptions, performance can be evaluated via plots like the following. The blue line represents raw data, the red line baseline corrected data, and green dots identifies peak centers.
 
-![image](https://github.com/nabfl/takeHome/assets/174144713/ce298510-d17f-4079-8315-4f2b867ee793)
+![image](https://github.com/nickf57/TakeHomeTech/assets/29392061/b9106356-6f34-4830-8c77-c9e700f21536)
 
 
 ## Overall Thoughts
