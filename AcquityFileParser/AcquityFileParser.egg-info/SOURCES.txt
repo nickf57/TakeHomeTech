@@ -1,0 +1,7 @@
+README.md
+setup.py
+AcquityFileParser/AcquityFileParser.egg-info/PKG-INFO
+AcquityFileParser/AcquityFileParser.egg-info/SOURCES.txt
+AcquityFileParser/AcquityFileParser.egg-info/dependency_links.txt
+AcquityFileParser/AcquityFileParser.egg-info/requires.txt
+AcquityFileParser/AcquityFileParser.egg-info/top_level.txt

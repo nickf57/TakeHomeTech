@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: AcquityFileParser
+Version: 0.0.1
+Summary: A python package for parsing water data
+Author: NickFlores
+Author-email: nick.flores1993@gmail.com
+License: MIT
+Requires-Python: >=3.10
+Requires-Dist: pydantic>=2.7.4
+Requires-Dist: setuptools>=70.0.0
+Requires-Dist: pandas>=2.2.2
+Requires-Dist: numpy>=2.0.0
+Requires-Dist: scipy>=1.14.0
