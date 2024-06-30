@@ -1,23 +1,23 @@
 # Water Acquity LC Parser
 Waters Acquity LC Parser is a tool to parse Acquity LC output files that are formatted as text. The parser records all parsable metadata and provides the following functionalities:
-+	Metadata captured via predefined string mappings
-+	Chromatogram truncation at the start and/or end to eliminate solvent fronts and target that elute during the wash phase
++	Metadata captured as attributes and identified via predefined string mappings
++	Chromatogram truncation at either/neither end of acquisition to eliminate solvent fronts and targets that elute during the wash phase
 +	Chromatogram smoothing prior to peak integration and baseline estimation
-+	Polynomial baseline correction and fixed
-+	Peak thresholds can be determined via gradient-based method, FWHM, or prominences
-+	Peak integration is provided via simpson and trapezoid estimations
++	Polynomial baseline correction and baseline shifting to ensure non-negative measurements
++	Peak thresholds determined via gradient-based method, FWHM, or prominences
++	Peak integration performed via numerical methods (simpson or trapezoid integration)
 
 ## Function Methodology and Limitations
 
 ### Metadata capture
 
-Metadata is parsed and captured if a valid field stored in any of the predefined metadata mappings stored in `util.py`. While this requires metadata mappings to be updated as Acquity data formats change, explicitly defining the mapping enables easy tracking via git histories. An evolution of this implementation would be to store values via config files or a centralized database. These types of metadata capture processes necessitate accurate version control.
+Metadata is parsed and captured if a valid field is detected--valid fields are identified by predefined metadata mappings stored in `util.py`. While this requires metadata mappings to be updated as Acquity data formats change, explicitly defining the mapping enables easy tracking via git histories. An evolution of this implementation would be to store values via config files or a centralized database. These types of metadata capture processes necessitate accurate version control and consistent typing.
 
 ### Truncating Chromatograms
 
-Chromatographic methods employing gradients exhibit two features: 
-1.	A significant initial bolus of material corresponding to solvent and molecules that do not bind to a stationary phase
-2.	A second bolus at the end of the method as tightly bound molecules are washed away
+Chromatographic methods employing gradient elution exhibit two features: 
+1.	A significant initial bolus of material corresponding to solvent and molecules that do not bind to the stationary phase (if present)
+2.	A second bolus at the end of the method as residual molecules elute during the wash phase
 
 To avoid problems associated with baseline estimation and peak finding introduced by these chromatogram artifacts, I provide an option to truncate both ends of a given chromatogram. Truncation is performed based on a proportion of the total data points in a provided chromatogram--this value may need to be tweaked for dramatically different types of LC assays.
 
@@ -27,15 +27,15 @@ Traditional LC processing includes a smoothing step to make subsequent analysis 
 
 ### Peak detection
 
-Peak detection is performed using scipy.signals.find_peaks with basic assumptions provided for peak distances and widths. Better performance in peak calling can likely be obtained by further optimization of finding parameters and/or implementation of a custom peak detection method. Additionally peak normalization can go far in ensuring peak finding parameters are useful across disparate assay types. In my opinion, finding peak centers is generally an easier task than finding boundaries which requires more nuance. As such, improvements here would likely be low priority.
+Peak detection is performed using scipy.signals.find_peaks with basic assumptions for peak center distances and widths. Better performance in peak calling can likely be obtained by further optimization of parameters and/or implementation of a custom peak detection method. Additionally, peak normalization can go far in ensuring peak finding parameters are consistent across disparate assay types. In my opinion, finding peak centers is generally an easier task than finding boundaries which requires more nuance. As such, improvements here would likely be low priority.
 
 ### Baseline Estimation
 
-Chromatogram baselines are estimated via a 3rd degree polynomial performed on isolated background data. Isolated background is obtained by excising a fixed number of data points around each peak center. This method of background isolation is servicable, but leaves room for more refined isolation based on accurate peak borders. Relatedly, the estimated baseline can be improved by utilizing splines rather than relying on a single function over the entirety of the chromatogram. 
+Chromatogram baselines are estimated via a 3rd degree polynomial performed on isolated background data. Isolated background is obtained by excising a fixed number of data points around each peak center. This method of background isolation is adequate, but leaves room for more refined isolation based on accurate peak borders. Relatedly, the estimated baseline can be improved by utilizing splines rather than relying on a single function over the entirety of the chromatogram. 
 
 ### Peak Integration
 
-Peak integration is performed via numerical methods (simpson or trapezoidal integration). Provided enough data points are available, numerical methods provide a very close approximation to the definitive solution. An alternative method commonly used is to fit a Gaussian function to each peak and calculate areas via the definite integral. One benefit to using numerical methods is generally better performance in integration of asymmetrical peaks, though performance can deteriorate with low data point frequency across a peak. 
+Peak integration is performed via numerical methods (simpson or trapezoidal integration). Provided enough data points are available, numerical methods provide a very close approximation to definitive solutions. An alternative method is to fit a Gaussian function to each peak and calculate areas via the definite integral. One benefit to using numerical methods is generally better performance in integration of asymmetrical peaks, though performance can deteriorate with low data point frequency across a peak. 
 
 ### Basic Tests
 
@@ -120,6 +120,6 @@ The current implementation of an Acquity data parser contains all the essential 
 1.	Refining peak border calling. The current methods all have obvious shortcomings, though gradient based detection is the most versatile. Gradient based border  detection can, and should, be updated to provide explicit means to alter how peak tails are integrated.
 2.	Implementing chromatogram normalization to reduce required tuning of parameters across diverse datasets.
 3.	Refining baseline estimation. The current baseline estimation method fits a single polynomial to the entire length of a chromatogram. While one must be wary of overfitting, better results can be obtained by utilizing splines to estimate regions of the baseline. Similarly, a better background isolation method can be used to more precisely model the chromatogram baseline
-4.	Provide a basic gaussian fit based method to integrate peak areas. Though not a personal preference, this is still a common method used by many and should be accounted for.
+4.	Provide a basic gaussian fit based method to integrate peak areas. Though not a personal preference, this is still a common method used by many and may be necessary for data consistency.
 
 
