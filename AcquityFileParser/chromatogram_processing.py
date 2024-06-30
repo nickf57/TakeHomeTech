@@ -171,9 +171,9 @@ class ChromatogramProcessor:
     min_peak_distance: int
         Minimum distance between peaks used when determining peak centers
     min_peak_width: int
-        Minimum peak width when deteriming peaks in chromatogram
+        Minimum peak width when determining peaks in chromatogram
     peak_prominence: float
-        Minimum peak prominence for a peak to be identified. Prominences will need to scale with chromatogram data
+        Minimum peak prominence for a peak to be identified. Prominences need to scale with chromatogram data
     smoothing_filter: str
         Type of smoothing filter to use on chromatogram y data
     baseline_correction: bool
@@ -223,7 +223,9 @@ class ChromatogramProcessor:
         return self
 
     def _truncate_chromatogram(self):
-        """Truncates chromatogram at one or both ends. Truncation is proportional to total number of collected data points."""
+        """Truncates chromatogram at either end of chromatogram based on specified params.
+        Truncation is proportional to total number of collected data points."""
+
         if self.remove_solvent_front:
             time_boundary = (
                 np.max(self.data[self.x_accessor]) * self.solvent_front_factor
@@ -243,6 +245,7 @@ class ChromatogramProcessor:
         return self
 
     def _smooth_chromatogram(self):
+        """Applies savitzky-golay filter to chromatogram data."""
 
         if self.smoothing_filter == "savgol":
             self.data["Smoothed " + self.y_accessor] = savgol_filter(
@@ -255,8 +258,8 @@ class ChromatogramProcessor:
         return self
 
     def _detect_peak_centers(self):
-        """Detected peak centers by using scipy.signal.find_peaks. Assumes usage with distance, width, and prominence variables. Stores
-        identified peaks as ChromatographPeak instances."""
+        """Detects peak centers by using scipy.signal.find_peaks. Assumes usage with distance, width, and prominence
+        variables. Stores identified peaks as ChromatographPeak instances."""
 
         peak_centers, peak_properties = find_peaks(
             self.data[self.y_accessor],
@@ -284,8 +287,8 @@ class ChromatogramProcessor:
         return self
 
     def _estimate_baseline(self):
-        """Fits polynomial to baseline and uses the resulting fit to adjust chromatogram data. Identified peaks are removed
-        from baseline estimation prior to fitting."""
+        """Fits polynomial to baseline and uses the resulting fit to adjust chromatogram data.
+        Identified peaks and surrounding area are removed from dataset prior to baseline fitting."""
         baseline_df = self.data.copy()
 
         for peak in self.identified_peaks:
